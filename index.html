@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hành trình Trải nghiệm Nhân viên (EXJ)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel để biên dịch JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Animation cho việc mở rộng thẻ */
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- Icon Components (SVG) để thay thế lucide-react ---
+        const IconWrapper = ({ children, className, color }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={{color: color}}>
+                {children}
+            </svg>
+        );
+
+        const Briefcase = ({ className }) => <IconWrapper className={className}><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></IconWrapper>;
+        const UserCheck = ({ className }) => <IconWrapper className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></IconWrapper>;
+        const TrendingUp = ({ className }) => <IconWrapper className={className}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></IconWrapper>;
+        const Award = ({ className }) => <IconWrapper className={className}><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></IconWrapper>;
+        const LogOut = ({ className }) => <IconWrapper className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></IconWrapper>;
+        const AlertCircle = ({ className }) => <IconWrapper className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconWrapper>;
+        const Star = ({ className }) => <IconWrapper className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>;
+        const Heart = ({ className }) => <IconWrapper className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>;
+        const CheckCircle2 = ({ className }) => <IconWrapper className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></IconWrapper>;
+        const ChevronDown = ({ className }) => <IconWrapper className={className}><path d="m6 9 6 6 6-6"/></IconWrapper>;
+        const ChevronUp = ({ className }) => <IconWrapper className={className}><path d="m18 15-6-6-6 6"/></IconWrapper>;
+        const Target = ({ className }) => <IconWrapper className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></IconWrapper>;
+        const Handshake = ({ className }) => <IconWrapper className={className}><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m22.5 5.5-2.5 2.5 2.5 2.5-2.5 2.5-2.5-2.5-2.5 2.5"/><path d="m21.5 13.5-9.3 9.3A2 2 0 0 1 9.4 24l-3.2-3.2a12.1 12.1 0 0 1 0-17L14.4 2a2 2 0 0 1 2.8 0l2.6 2.6a2 2 0 0 1 0 2.8Z"/><path d="m16 9.5-3-3"/></IconWrapper>;
+
+        // --- Main Application ---
+        const EmployeeJourney = () => {
+            const [expandedStage, setExpandedStage] = useState(null);
+
+            const toggleStage = (index) => {
+                if (expandedStage === index) {
+                    setExpandedStage(null);
+                } else {
+                    setExpandedStage(index);
+                }
+            };
+
+            const journeyData = [
+                {
+                    id: 1,
+                    stage: "Giai đoạn 1: Hội Nhập & Kết Nối",
+                    period: "Tháng 1 (The Honeymoon)",
+                    icon: <Briefcase className="w-6 h-6 text-white" />,
+                    color: "bg-blue-600",
+                    borderColor: "border-blue-600",
+                    lightColor: "bg-blue-50",
+                    description: "Giai đoạn định hình ấn tượng đầu tiên. Nhân viên mới chuyển từ trạng thái 'người lạ' sang 'thành viên'.",
+                    emotionalCurve: "Hào hứng cao độ xen lẫn lo lắng",
+                    psychologicalContract: {
+                        type: "Hợp đồng Kỳ vọng (Expectation)",
+                        content: "Nhân viên tin rằng 'bức tranh màu hồng' khi phỏng vấn là thật. Họ trao niềm tin và kỳ vọng công ty sẽ chào đón họ nồng nhiệt như đã hứa."
+                    },
+                    painPoint: {
+                        title: "Cú sốc văn hóa & Lạc lõng",
+                        desc: "Không biết hỏi ai, quy trình lộn xộn, máy tính chưa có, bị 'bỏ rơi' vào giờ ăn trưa, quá tải thông tin nhưng thiếu hướng dẫn thực tế."
+                    },
+                    gloryPoint: {
+                        title: "Sự chào đón WOW",
+                        desc: "Welcome Kit chu đáo, một người Buddy tận tâm, CEO/Manager ghé qua chào hỏi, workspace đã sẵn sàng 100%."
+                    },
+                    momentOfTruth: "Ngày đầu tiên đi làm (First Day): Cảm giác 'Mình đã chọn đúng nơi' hay 'Mình đã sai lầm' được quyết định ngay khi họ bước vào cửa.",
+                    actionableTips: [
+                        "Gửi email chào mừng toàn công ty trước 1 ngày.",
+                        "Chuẩn bị sẵn 'Buddy' (Người hướng dẫn) không phải là sếp.",
+                        "Thiết lập mục tiêu 30 ngày rõ ràng."
+                    ]
+                },
+                {
+                    id: 2,
+                    stage: "Giai đoạn 2: Thử Thách & Hòa Nhập",
+                    period: "Tháng 2 - 3 (The Reality Check)",
+                    icon: <UserCheck className="w-6 h-6 text-white" />,
+                    color: "bg-purple-600",
+                    borderColor: "border-purple-600",
+                    lightColor: "bg-purple-50",
+                    description: "Tuần trăng mật kết thúc. Nhân viên bắt đầu đối mặt với áp lực công việc thực tế và văn hóa ngầm.",
+                    emotionalCurve: "Sụt giảm nhẹ (Do áp lực thực tế)",
+                    psychologicalContract: {
+                        type: "Hợp đồng Kiểm chứng (Testing)",
+                        content: "Nhân viên bắt đầu soi chiếu lời hứa của công ty với thực tế. 'Tôi nỗ lực làm việc, liệu công ty có hỗ trợ tôi như đã nói hay bỏ mặc tôi bơi?'"
+                    },
+                    painPoint: {
+                        title: "Mơ hồ về kỳ vọng",
+                        desc: "Làm việc chăm chỉ nhưng không biết mình có đang làm tốt không. Feedback chung chung kiểu 'cố gắng nhé'. Cảm thấy cô đơn trong công việc."
+                    },
+                    gloryPoint: {
+                        title: "Chiến thắng đầu tiên (First Win)",
+                        desc: "Hoàn thành xuất sắc một nhiệm vụ nhỏ được giao. Được công nhận công khai trong cuộc họp nhóm. Cảm giác mình có giá trị."
+                    },
+                    momentOfTruth: "Buổi Review Thử việc: Đây là cuộc đối thoại hai chiều cởi mở về tương lai hay chỉ là một thông báo lạnh lùng 'Bạn đã qua/trượt'?",
+                    actionableTips: [
+                        "Check-in 1:1 hàng tuần, không phải để kiểm soát mà để gỡ khó.",
+                        "Tạo cơ hội cho 'Quick Win' để xây dựng tự tin.",
+                        "Làm rõ lộ trình thăng tiến ngay khi ký HĐ chính thức."
+                    ]
+                },
+                {
+                    id: 3,
+                    stage: "Giai đoạn 3: Hiệu Suất & Phát Triển",
+                    period: "6 tháng - 1 năm (The Grind)",
+                    icon: <TrendingUp className="w-6 h-6 text-white" />,
+                    color: "bg-green-600",
+                    borderColor: "border-green-600",
+                    lightColor: "bg-green-50",
+                    description: "Giai đoạn nhân viên đã thạo việc. Họ khao khát sự phát triển và những thử thách mới.",
+                    emotionalCurve: "Ổn định hoặc Nhàm chán",
+                    psychologicalContract: {
+                        type: "Hợp đồng Trao đổi (Transactional)",
+                        content: "Sự sòng phẳng lên ngôi. 'Tôi tạo ra kết quả, bạn trao cho tôi lộ trình và cơ hội'. Nếu cảm thấy cán cân bị lệch, họ sẽ 'nghỉ việc thầm lặng' (Quiet Quitting)."
+                    },
+                    painPoint: {
+                        title: "Kìm hãm & Thiếu lộ trình",
+                        desc: "Công việc lặp lại, sếp vi mô (micromanage), không thấy cơ hội học hỏi mới. Cảm giác bị 'mắc kẹt'."
+                    },
+                    gloryPoint: {
+                        title: "Được trao quyền (Empowerment)",
+                        desc: "Được tin tưởng giao dự án quan trọng. Được cử đi học khóa đào tạo nâng cao. Cảm thấy mình đang lớn lên cùng công ty."
+                    },
+                    momentOfTruth: "Kỳ đánh giá hiệu suất (Performance Review): Là lúc bị vạch lá tìm sâu hay là lúc được ghi nhận và định hướng phát triển sự nghiệp?",
+                    actionableTips: [
+                        "Xây dựng lộ trình đào tạo (L&D) cá nhân hóa.",
+                        "Thực hiện luân chuyển công việc (Job Rotation) nếu họ thấy chán.",
+                        "Ghi nhận nỗ lực (Recognition) kịp thời, không đợi cuối năm."
+                    ]
+                },
+                {
+                    id: 4,
+                    stage: "Giai đoạn 4: Gắn Kết & Cống Hiến",
+                    period: "Trên 1 năm (The Loyalty)",
+                    icon: <Award className="w-6 h-6 text-white" />,
+                    color: "bg-orange-500",
+                    borderColor: "border-orange-500",
+                    lightColor: "bg-orange-50",
+                    description: "Nhân viên trở thành trụ cột hoặc đại sứ thương hiệu. Họ làm việc vì mục đích chung.",
+                    emotionalCurve: "Tự hào & Cam kết sâu sắc",
+                    psychologicalContract: {
+                        type: "Hợp đồng Tình cảm (Relational)",
+                        content: "Mối quan hệ chuyển sang đối tác. 'Tôi không chỉ làm vì lương, tôi làm vì tôi thuộc về nơi này'. Họ sẵn sàng hy sinh lợi ích ngắn hạn vì mục tiêu chung."
+                    },
+                    painPoint: {
+                        title: "Sự bất công & Vô hình",
+                        desc: "Người mới lương cao hơn người cũ. Đóng góp thầm lặng bị lãng quên. Cảm giác 'công thần' bị đối xử tệ."
+                    },
+                    gloryPoint: {
+                        title: "Trở thành Mentor/Leader",
+                        desc: "Được công nhận là chuyên gia. Được hướng dẫn người mới. Được tham gia vào các quyết định chiến lược của team."
+                    },
+                    momentOfTruth: "Khi gặp biến cố cá nhân: Công ty có hỗ trợ linh hoạt khi họ ốm đau/gia đình có việc, hay cứng nhắc trừ lương?",
+                    actionableTips: [
+                        "Review lương thưởng công bằng theo thị trường.",
+                        "Mời tham gia các dự án chiến lược.",
+                        "Tôn vinh thâm niên (Work Anniversary) thật trân trọng."
+                    ]
+                },
+                {
+                    id: 5,
+                    stage: "Giai đoạn 5: Tái tạo hoặc Rời đi",
+                    period: "Kết thúc hành trình (The Legacy)",
+                    icon: <LogOut className="w-6 h-6 text-white" />,
+                    color: "bg-gray-600",
+                    borderColor: "border-gray-600",
+                    lightColor: "bg-gray-50",
+                    description: "Mọi hành trình đều có điểm kết. Quan trọng là cách chia tay.",
+                    emotionalCurve: "Nuối tiếc hoặc Giải thoát",
+                    psychologicalContract: {
+                        type: "Hợp đồng Uy tín (Reputational)",
+                        content: "Dù hợp đồng lao động chấm dứt, hợp đồng tâm lý vẫn còn: 'Chúng ta chia tay văn minh, giữ gìn danh tiếng cho nhau'. Chuyển từ nhân viên sang cựu binh (Alumni)."
+                    },
+                    painPoint: {
+                        title: "Kết thúc lạnh lùng",
+                        desc: "Bị cô lập khi nộp đơn nghỉ. Quy trình bàn giao rắc rối. Sếp tỏ thái độ thù địch. Cảm giác như 'kẻ phản bội'."
+                    },
+                    gloryPoint: {
+                        title: "Trở thành Cựu binh (Alumni)",
+                        desc: "Được tổ chức tiệc chia tay ấm cúng. Giữ kết nối như những người bạn. Sẵn sàng giới thiệu nhân sự mới cho công ty."
+                    },
+                    momentOfTruth: "Cuộc phỏng vấn nghỉ việc (Exit Interview): Có thực sự lắng nghe để cải thiện tổ chức hay chỉ làm cho có lệ?",
+                    actionableTips: [
+                        "Tổ chức Farewell Party trân trọng.",
+                        "Mời tham gia mạng lưới Alumni.",
+                        "Hỗ trợ thủ tục nhanh gọn, tử tế."
+                    ]
+                }
+            ];
+
+            return (
+                <div className="min-h-screen bg-gray-50 font-sans text-gray-800 pb-12">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-blue-600 p-2 rounded-lg">
+                                    <Star className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold text-gray-900">Bản Đồ Trải Nghiệm Nhân Viên</h1>
+                                    <p className="text-xs text-gray-500">Employee Experience Journey Map</p>
+                                </div>
+                            </div>
+                            <button className="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition" onClick={() => window.print()}>
+                                Tải xuống PDF / In
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="max-w-4xl mx-auto px-4 py-8">
+                        <div className="mb-8 text-center">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-2">Hành trình từ "Người lạ" đến "Đại sứ"</h2>
+                            <p className="text-gray-600 max-w-2xl mx-auto">
+                                Một mô hình thực tế tập trung vào cảm xúc, điểm đau và những khoảnh khắc then chốt quyết định sự gắn kết của nhân tài.
+                            </p>
+                        </div>
+
+                        {/* Timeline */}
+                        <div className="relative">
+                            {/* Vertical Line */}
+                            <div className="absolute left-6 md:left-8 top-0 bottom-0 w-1 bg-gray-200" aria-hidden="true"></div>
+
+                            <div className="space-y-8">
+                                {journeyData.map((item, index) => (
+                                    <div key={item.id} className="relative pl-16 md:pl-20">
+                                        {/* Timeline Marker */}
+                                        <div 
+                                            className={`absolute left-2 md:left-4 top-0 w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-white shadow-lg flex items-center justify-center z-10 ${item.color}`}
+                                        >
+                                            {item.icon}
+                                        </div>
+
+                                        {/* Card */}
+                                        <div 
+                                            className={`bg-white rounded-xl shadow-md overflow-hidden border-l-4 ${item.borderColor} hover:shadow-lg transition-shadow duration-300`}
+                                        >
+                                            {/* Card Header */}
+                                            <div 
+                                                className="p-5 cursor-pointer flex justify-between items-start md:items-center"
+                                                onClick={() => toggleStage(index)}
+                                            >
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className={`text-xs font-bold px-2 py-1 rounded text-white ${item.color.replace('bg-', 'bg-opacity-90 bg-')}`}>
+                                                            {item.period}
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-gray-800">{item.stage}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                                                </div>
+                                                <div className="ml-4 flex-shrink-0 text-gray-400">
+                                                    {expandedStage === index ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                                                </div>
+                                            </div>
+
+                                            {/* Expanded Content */}
+                                            {expandedStage === index && (
+                                                <div className="px-5 pb-6 border-t border-gray-100 bg-gray-50/50 animate-fadeIn">
+                                                    
+                                                    {/* Emotional State & Psychological Contract Header */}
+                                                    <div className="mt-4 flex flex-col md:flex-row md:items-center gap-4 text-sm mb-6">
+                                                        <div className="flex items-center gap-2 font-medium text-gray-600">
+                                                            <Heart className="w-4 h-4 text-pink-500" />
+                                                            <span>Cảm xúc: <span className="text-gray-900">{item.emotionalCurve}</span></span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Psychological Contract Section */}
+                                                    <div className="mb-6 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <Handshake className="w-5 h-5 text-indigo-600" />
+                                                            <h4 className="font-bold text-indigo-800">Hợp đồng Tâm lý (Psychological Contract)</h4>
+                                                        </div>
+                                                        <p className="text-sm font-semibold text-indigo-900 mb-1">{item.psychologicalContract.type}</p>
+                                                        <p className="text-sm text-gray-700 italic">"{item.psychologicalContract.content}"</p>
+                                                    </div>
+
+                                                    <div className="grid md:grid-cols-2 gap-6">
+                                                        
+                                                        {/* Pain Point */}
+                                                        <div className="bg-red-50 border border-red-100 rounded-lg p-4">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                                                <h4 className="font-bold text-red-700">Điểm Đau Đớn (Pain Point)</h4>
+                                                            </div>
+                                                            <h5 className="font-semibold text-gray-800 text-sm mb-1">{item.painPoint.title}</h5>
+                                                            <p className="text-sm text-gray-600 leading-relaxed">"{item.painPoint.desc}"</p>
+                                                        </div>
+
+                                                        {/* Glory Point */}
+                                                        <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Star className="w-5 h-5 text-yellow-600" />
+                                                                <h4 className="font-bold text-yellow-700">Điểm Vinh Quang (Glory Point)</h4>
+                                                            </div>
+                                                            <h5 className="font-semibold text-gray-800 text-sm mb-1">{item.gloryPoint.title}</h5>
+                                                            <p className="text-sm text-gray-600 leading-relaxed">"{item.gloryPoint.desc}"</p>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {/* Moment of Truth */}
+                                                    <div className="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-4 relative overflow-hidden">
+                                                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                            <Target className="w-16 h-16 text-blue-600" />
+                                                        </div>
+                                                        <div className="relative z-10">
+                                                            <h4 className="font-bold text-blue-800 flex items-center gap-2 mb-2">
+                                                                <Target className="w-5 h-5" />
+                                                                Khoảnh khắc Sự thật (Moment of Truth)
+                                                            </h4>
+                                                            <p className="text-gray-700 italic">
+                                                                {item.momentOfTruth}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actionable Tips */}
+                                                    <div className="mt-6">
+                                                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Hành động cho HR & Quản lý</h4>
+                                                        <div className="space-y-2">
+                                                            {item.actionableTips.map((tip, idx) => (
+                                                                <div key={idx} className="flex items-start gap-3">
+                                                                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                                                    <p className="text-sm text-gray-700">{tip}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* End of Journey */}
+                            <div className="pl-16 md:pl-20 mt-8 pb-12">
+                                <div className="flex items-center gap-4 text-gray-400">
+                                    <div className="w-12 text-center">
+                                        <div className="w-2 h-2 bg-gray-300 rounded-full mx-auto"></div>
+                                        <div className="w-1 h-8 bg-gray-200 mx-auto my-1"></div>
+                                        <div className="w-2 h-2 bg-gray-300 rounded-full mx-auto"></div>
+                                    </div>
+                                    <p className="text-sm italic">Hành trình không kết thúc, nó chuyển đổi sang giai đoạn Cựu nhân viên (Alumni)...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<EmployeeJourney />);
+    </script>
+</body>
+</html>
